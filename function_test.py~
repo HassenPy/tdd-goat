@@ -16,16 +16,3 @@ assert 'To-Do' in browser.title
 
 # When he hits enter, the page updates and now the page lists
 # "1: Buy TDD book" as an item in a to-do list
-
-# He still needs to add other items to the to-do list
-# He enters "Sleep tight"
-
-# The page updates again, and now the list contains the two items
-
-# He copies the url to access his to-do list anywhere he goes.
-
-# He visits that url later 
-
-# He goes back to watever he was doing
-
-browser.quit()
