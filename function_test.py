@@ -1,31 +1,43 @@
 from selenium import webdriver
+import unittest
 
 
-browser = webdriver.Firefox()
+class NewVisitorTest(unittest.TestCase):
 
-# Popei uses an online to-do app.
-# He opens the home page
-browser.get('http://127.0.0.1:8000')
+    def setUp(self):
+        self.browser = webdriver.Firefox()
+        self.browser.implicitly_wait(3)
 
-# He notices the page title and header mention to-do lists
-assert 'To-Do' in browser.title
+    def tearDown(self):
+        self.browser.quit()
 
-# He wants to enter a to-do item as usual
+    def test_can_start_a_list_and_retrieve_it_later(self):
+        # Popei uses an online to-do app.
+        # He opens the home page
+        self.browser.get('http://127.0.0.1:8000')
 
-# He types "Buy TDD book" into a text box
+        # He notices the page title and header mention to-do lists
+        self.assertIn('To-Do', self.browser.title)
+        self.fail('Finish the test!')
 
-# When he hits enter, the page updates and now the page lists
-# "1: Buy TDD book" as an item in a to-do list
+        # He wants to enter a to-do item as usual
 
-# He still needs to add other items to the to-do list
-# He enters "Sleep tight"
+        # He types "Buy TDD book" into a text box
 
-# The page updates again, and now the list contains the two items
+        # When he hits enter, the page updates and now the page lists
+        # "1: Buy TDD book" as an item in a to-do list
 
-# He copies the url to access his to-do list anywhere he goes.
+        # He still needs to add other items to the to-do list
+        # He enters "Sleep tight"
 
-# He visits that url later 
+        # The page updates again, and now the list contains the two items
 
-# He goes back to watever he was doing
+        # He copies the url to access his to-do list anywhere he goes.
 
-browser.quit()
+        # He visits that url later
+
+        # He goes back to watever he was doing
+
+
+if __name__ == '__main__':
+    unittest.main(warnings='ignore')
