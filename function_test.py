@@ -37,8 +37,9 @@ class NewVisitorTest(unittest.TestCase):
         self.assertEqual(
             any(row.text == '1: Buy TDD book' for row in rows)
             )
-        
-        # He still needs to add other items to the to-do list, so he enters 'Sleep tight'
+
+        # He still needs to add other items to the to-do list
+        # So he enters 'Sleep tight'
         self.fail('Finish the test!')
 
         # The page updates again, and now the list contains the two items
