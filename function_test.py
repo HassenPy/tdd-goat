@@ -18,17 +18,28 @@ class NewVisitorTest(unittest.TestCase):
 
         # He notices the page title and header mention to-do lists
         self.assertIn('To-Do', self.browser.title)
-        self.fail('Finish the test!')
 
+        header_text = self.browser.find_element_by_tag_name('h1').text
+        self.assertIn('To-Do', header_text)
         # He wants to enter a to-do item as usual
-
+        inputbox = self.browser.find_element_by_id('id_new_item')
+        self.assertEqual(
+            inputbox.get_attribute('placeholder'),
+            'Enter a to-do item'
+        )
         # He types "Buy TDD book" into a text box
+        inputbox.send_keys("Buy TDD book")
 
         # When he hits enter, the page updates and now the page lists
         # "1: Buy TDD book" as an item in a to-do list
-
-        # He still needs to add other items to the to-do list
-        # He enters "Sleep tight"
+        table = self.browser.find_element_by_id('id_list_table')
+        rows = table.find_elements_by_tag_name('tr')
+        self.assertEqual(
+            any(row.text == '1: Buy TDD book' for row in rows)
+            )
+        
+        # He still needs to add other items to the to-do list, so he enters 'Sleep tight'
+        self.fail('Finish the test!')
 
         # The page updates again, and now the list contains the two items
 
