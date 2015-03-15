@@ -1,6 +1,6 @@
 from django.test import LiveServerTestCase
 
-import unittest
+# import unittest
 # import time
 
 from selenium import webdriver
@@ -41,10 +41,15 @@ class NewVisitorTest(LiveServerTestCase):
         # He types "Buy TDD book" into a text box
         inputbox.send_keys("Buy TDD book")
 
-        # When he hits enter, the page updates and now the page lists
-        # "1: Buy TDD book" as an item in a to-do list
+        # When he hits enter, he is taken to a new url,
+        # now the page lists "1: Buy TDD book" as an item
+        # in a to-do list
         inputbox.send_keys(Keys.ENTER)
         self.check_for_row_in_table('1: Buy TDD book')
+        popei_list_url = self.browser.current_url
+        self.assertRegex(popei_list_url, '/lists/.+')
+        self.check_for_row_in_table('1: Buy TDD book')
+
         # He still needs to add other items to the to-do list
         # So he types 'Sleep tight', then he hits enter
         inputbox = self.browser.find_element_by_id('id_new_item')
@@ -55,8 +60,33 @@ class NewVisitorTest(LiveServerTestCase):
         self.check_for_row_in_table('1: Buy TDD book')
         self.check_for_row_in_table('2: Sleep tight')
 
-        # He copies the url to access his to-do list anywhere he goes.
-        self.fail('Finish the test!')
-        # He visits that url later
+        # Now a new user, Brutus, comes along to the site
+        self.browser.quit()
 
-        # He goes back to whatever he was doing
+        # We use a new browser session so that no information
+        # from edith's session come throught
+        self.browser = webdriver.Firefox()
+
+        # Brutus visits the home page.
+        # There is no sign of edith's list
+        table_text = self.browser.find_element_by_id('id_new_item').text
+        self.assertNotIn('Buy TDD book', table_text)
+        self.assertNotIn('Sleep tight', table_text)
+
+        # Brutus enters a new item into the empy list.
+        # He is less interesting than Popei
+        inputbox = self.browser.find_element_by_id('id_new_item')
+        inputbox.send_keys('Buy milch!?')
+        inputbox.send_keys(Keys.ENTER)
+
+        # Francis gets his own unique url
+        francis_list_url = self.browser.current_url
+        self.assertRegex(francis_list_url, '/lists/.+')
+        self.assertNotEqual(francis_list_url, popei_list_url)
+
+        # Again there is no trace of Popei's list
+        table_text = self.browser.find_element_by_id('id_new_item').text
+        self.assertNotIn('Buy TDD book', table_text)
+        self.assertIn('Buy milch!?', table_text)
+
+        # satisfied, he goes to the gym
