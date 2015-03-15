@@ -2,6 +2,7 @@ from django.test import LiveServerTestCase
 
 # import unittest
 # import time
+from lists.models import Item
 
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
@@ -62,16 +63,18 @@ class NewVisitorTest(LiveServerTestCase):
 
         # Now a new user, Brutus, comes along to the site
         self.browser.quit()
-
+        Item.objects.all().delete()
         # We use a new browser session so that no information
         # from edith's session come throught
         self.browser = webdriver.Firefox()
+        self.browser.implicitly_wait(5)
 
         # Brutus visits the home page.
         # There is no sign of edith's list
-        table_text = self.browser.find_element_by_id('id_new_item').text
-        self.assertNotIn('Buy TDD book', table_text)
-        self.assertNotIn('Sleep tight', table_text)
+        self.browser.get(self.live_server_url)
+        body_text = self.browser.find_element_by_tag_name('body').text
+        self.assertNotIn('Buy TDD book', body_text)
+        self.assertNotIn('Sleep tight', body_text)
 
         # Brutus enters a new item into the empy list.
         # He is less interesting than Popei
@@ -85,8 +88,9 @@ class NewVisitorTest(LiveServerTestCase):
         self.assertNotEqual(francis_list_url, popei_list_url)
 
         # Again there is no trace of Popei's list
-        table_text = self.browser.find_element_by_id('id_new_item').text
-        self.assertNotIn('Buy TDD book', table_text)
-        self.assertIn('Buy milch!?', table_text)
+        body_text = self.browser.find_element_by_tag_name('body').text
+        self.assertNotIn('Buy TDD book', body_text)
+        self.assertIn('Buy milch!?', body_text)
 
         # satisfied, he goes to the gym
+        self.fail('Finish tests!')
