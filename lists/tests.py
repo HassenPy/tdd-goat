@@ -3,7 +3,9 @@ from django.http import HttpRequest
 from django.core.urlresolvers import resolve
 from django.template.loader import render_to_string
 
-from lists.views import home_page
+import time
+
+from lists.views import home_page, new_list
 from lists.models import Item
 
 
@@ -45,7 +47,7 @@ class HomePageTest(TestCase):
 
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['location'],
-                         '/lists/the-only-list-in-the-world'
+                         '/lists/the-only-list/'
                          )
 
 
@@ -65,6 +67,7 @@ class ItemModelTest(TestCase):
 
         first_saved_item = saved_items[0]
         second_saved_item = saved_items[1]
+
         self.assertEqual(first_saved_item.text, 'The first(ever) list item')
         self.assertEqual(second_saved_item.text, 'The second item')
 
@@ -72,14 +75,39 @@ class ItemModelTest(TestCase):
 class ListViewTest(TestCase):
 
     def test_uses_list_template(self):
-        response = self.client.get('/lists/the-only-list-in-the-world/')
+        response = self.client.get('/lists/the-only-list/')
         self.assertTemplateUsed(response, 'list.html')
 
     def test_displays_all_list_items(self):
         Item.objects.create(text='itemey1')
         Item.objects.create(text='itemey2')
 
-        response = self.client.get('/lists/the-only-list-in-the-world/')
+        response = self.client.get('/lists/the-only-list/')
 
         self.assertContains(response, 'itemey1')
         self.assertContains(response, 'itemey2')
+
+
+class NewListTest(TestCase):
+
+    def test_saving_a_POST_request(self):
+        request = HttpRequest()
+        request.method = 'POST'
+        request.POST['item_text'] = 'A new list item'
+        new_list(request)
+
+        self.assertEqual(Item.objects.all().count(), 1)
+
+        new_item = Item.objects.all()[0]
+        self.assertEqual(new_item.text, 'A new list item')
+
+    def test_redirects_after_POST(self):
+        request = HttpRequest()
+        request.method = 'POST'
+        request.POST['item_text'] = 'A new list item'
+        response = new_list(request)
+
+        self.assertEqual(response['location'], '/lists/the-only-list/')
+        self.assertEqual(response.status_code, 302)
+
+        # Writing tests for unique url
