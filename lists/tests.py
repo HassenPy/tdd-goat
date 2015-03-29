@@ -3,14 +3,13 @@ from django.http import HttpRequest
 from django.core.urlresolvers import resolve
 from django.template.loader import render_to_string
 
-import time
+# import time
 
 from lists.views import home_page, new_list
-from lists.models import Item
+from lists.models import Item, List
 
 
 class HomePageTest(TestCase):
-
     def test_root_url_resolvers_to_home_page_view(self):
         found = resolve('/')
         self.assertEqual(found.func, home_page)
@@ -51,25 +50,35 @@ class HomePageTest(TestCase):
                          )
 
 
-class ItemModelTest(TestCase):
+class ListAndItemModelTest(TestCase):
 
-    def test_saving_and_retrieving_item(self):
+    def test_saving_and_retrieving_items(self):
+        list_ = List()
+        list_.save()
+
         first_item = Item()
         first_item.text = "The first(ever) list item"
+        first_item.list = list_
         first_item.save()
 
         second_item = Item()
         second_item.text = "The second item"
+        second_item.list = list_
         second_item.save()
 
+        saved_lists = List.objects.all()
         saved_items = Item.objects.all()
-        self.assertEqual(saved_items.count(), 2)
+
+        self.assertEqual(saved_lists.count(), 1)
+        self.assertEqual(saved_lists[0], list_)
 
         first_saved_item = saved_items[0]
         second_saved_item = saved_items[1]
 
         self.assertEqual(first_saved_item.text, 'The first(ever) list item')
+        self.assertEqual(first_saved_item.list, list_)
         self.assertEqual(second_saved_item.text, 'The second item')
+        self.assertEqual(second_saved_item.list, list_)
 
 
 class ListViewTest(TestCase):
@@ -79,11 +88,15 @@ class ListViewTest(TestCase):
         self.assertTemplateUsed(response, 'list.html')
 
     def test_displays_all_list_items(self):
-        Item.objects.create(text='itemey1')
-        Item.objects.create(text='itemey2')
+        list_ = List()
+        list_.save()
+
+        Item.objects.create(text='itemey1', list=list_)
+        Item.objects.create(text='itemey2', list=list_)
 
         response = self.client.get('/lists/the-only-list/')
 
+        self.assertEqual(Item.objects.all()[0].list, list_)
         self.assertContains(response, 'itemey1')
         self.assertContains(response, 'itemey2')
 
