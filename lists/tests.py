@@ -43,10 +43,11 @@ class HomePageTest(TestCase):
         request.method = 'POST'
         request.POST['item_text'] = "A new list item"
         response = home_page(request)
+        list_id = Item.objects.all()[0].list.id
 
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['location'],
-                         '/lists/the-only-list/'
+                         '/lists/%d/' % (list_id,)
                          )
 
 
